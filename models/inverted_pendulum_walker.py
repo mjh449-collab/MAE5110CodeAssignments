@@ -9,29 +9,64 @@ import numpy as np
 
 
 def generate_params():
-    pass
+    "gravity": 9.81,
+    "length": 1.0,
+    "mass": 1.0,
+    "incline": 0.06,
+    "angle_of_attack": np.pi / 8,
+    "ankle_torque": 0.0,
+    }
+
+    return params
 
 
 def dynamics(t, state, params):
-    theta, angular_velocity = state
+    gravity = params["gravity"]
     length = params["length"]
-    angular_acceleration = (
-        params["gravity"] / length * np.sin(theta)
-        + params.get("ankle_torque", 0.0) / (params["mass"] * length**2)
-    )
-    return np.array([angular_velocity, angular_acceleration])
+    mass = params["mass"]
+    ankle_torque = params["ankle_torque"]
+
+    theta = state[0]
+    angular_velocity = state[1]
+
+    angular_acceleration = (gravity / length * np.sin(theta) + ankle_torque / (mass * length**2))
+
+    return np.array([angular_velocity,angular_acceleration])
 
 
 def event_guard(previous_state, next_state, params):
-    pass
+    incline = params["incline"]
+    angle_of_attack = params['angle_of_attack']
 
+    touchdown_angle = incline + angle_of_attack
+
+    return (previous_state < touchdown_angle, next_state >= touchdown_angle)
 
 def event_dynamics(state, params):
-    pass
+    incline = params["incline"]
+    angle_of_attack = params["angle_of_attack"]
+
+    angular_velocity = state[1]
+
+    new_theta = incline - angle_of_attack
+    new_angular_velocity = (np.cos(2 * angle_of_attack) * angular_velocity)
+
+    return np.array([new_theta, new_angular_velocity])
 
 
 def calculate_energy(state, params):
-    pass
+    gravity = params["gravity"]
+    length = params["length"]
+    mass = params["mass"]
+
+    theta = state[0]
+    angular_velocity = state[1]
+
+    kinetic_energy = (0.5 * mass * length**2 * angular_velocity**2)
+
+    potential_energy = (mass * gravity * length * np.cos(theta))
+
+    return kinetic_energy, potential_energy
 
 
 def visualize(
