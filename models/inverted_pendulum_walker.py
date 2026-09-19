@@ -9,13 +9,15 @@ import numpy as np
 
 
 def generate_params():
-    "gravity": 9.81,
-    "length": 1.0,
-    "mass": 1.0,
-    "incline": 0.06,
-    "angle_of_attack": np.pi / 8,
-    "ankle_torque": 0.0,
-    }
+    params = {
+        "gravity": 9.81,
+        "length": 1.0,
+        "mass": 1.0,
+        "incline": 0.06,
+        "angle_of_attack": np.pi/8,
+        "ankle_torque": 0.0,
+        }
+    
 
     return params
 
