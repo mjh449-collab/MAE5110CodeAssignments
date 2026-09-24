@@ -1,8 +1,4 @@
-"""InvertedPendulumWalker starter model, with visualization provided.
-
-Implement the model functions for Assignment 2. The visualizer works independently
-of those functions; it draws a supplied state without advancing the simulation.
-"""
+"""Torque-driven inverted pendulum with inelastic, no-slip footstrikes."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,10 +10,9 @@ def generate_params():
         "length": 1.0,
         "mass": 1.0,
         "incline": 0.06,
-        "angle_of_attack": np.pi/8,
+        "angle_of_attack": np.pi / 8,
         "ankle_torque": 0.0,
-        }
-    
+    }
 
     return params
 
@@ -26,23 +21,28 @@ def dynamics(t, state, params):
     gravity = params["gravity"]
     length = params["length"]
     mass = params["mass"]
-    ankle_torque = params["ankle_torque"]
+    ankle_torque = params.get("ankle_torque", 0.0)
 
     theta = state[0]
     angular_velocity = state[1]
 
-    angular_acceleration = (gravity / length * np.sin(theta) + ankle_torque / (mass * length**2))
+    angular_acceleration = gravity / length * np.sin(theta) + ankle_torque / (
+        mass * length**2
+    )
 
-    return np.array([angular_velocity,angular_acceleration])
+    return np.array([angular_velocity, angular_acceleration])
 
 
 def event_guard(previous_state, next_state, params):
     incline = params["incline"]
-    angle_of_attack = params['angle_of_attack']
+    angle_of_attack = params["angle_of_attack"]
 
     touchdown_angle = incline + angle_of_attack
 
-    return (previous_state < touchdown_angle, next_state >= touchdown_angle)
+    return bool(
+        previous_state[0] < touchdown_angle <= next_state[0] and next_state[1] > 0
+    )
+
 
 def event_dynamics(state, params):
     incline = params["incline"]
@@ -51,7 +51,7 @@ def event_dynamics(state, params):
     angular_velocity = state[1]
 
     new_theta = incline - angle_of_attack
-    new_angular_velocity = (np.cos(2 * angle_of_attack) * angular_velocity)
+    new_angular_velocity = np.cos(2 * angle_of_attack) * angular_velocity
 
     return np.array([new_theta, new_angular_velocity])
 
@@ -64,9 +64,9 @@ def calculate_energy(state, params):
     theta = state[0]
     angular_velocity = state[1]
 
-    kinetic_energy = (0.5 * mass * length**2 * angular_velocity**2)
+    kinetic_energy = 0.5 * mass * length**2 * angular_velocity**2
 
-    potential_energy = (mass * gravity * length * np.cos(theta))
+    potential_energy = mass * gravity * length * np.cos(theta)
 
     return kinetic_energy, potential_energy
 
