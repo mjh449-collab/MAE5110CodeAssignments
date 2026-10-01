@@ -3,6 +3,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+def generate_initial_condition(): #added IC function to as needed for tests
+    return np.array([0.3, 0])
 
 def generate_params():
     params = {
