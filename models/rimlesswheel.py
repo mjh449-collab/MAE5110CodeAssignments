@@ -1,5 +1,16 @@
 import numpy as np
 
+def generate_initial_condition(): #added IC function to as needed for tests
+    return np.array([0.3, 0])
+
+def generate_params(): #added params function
+    params = {
+    "gravity": 9.81,
+    "spoke_length": 1.0,
+    "slope_angle": 0.1,
+    "number_spokes": 8
+    }
+    return params
 
 def dynamics(t, state, params):
     gravity = params["gravity"]
